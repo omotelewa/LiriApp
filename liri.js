@@ -1,70 +1,60 @@
 
+require("dotenv").config();
 var keys = require("./keys.js");
 var Spotify = require("node-spotify-api");
 //var moment = reqiure("moment");
 var axios = require("axios");
 var fs = require("fs");
 
+var spotify = new Spotify(keys.spotify);
 
+// var typeOfSearch = process.argv[2];
+// var search = process.argv[3];
 
-var typeOfSearch = process.argv[2];
-var search = process.argv[3];
+App(process.argv[2], process.argv[3])
 
-
-
-
-switch (typeOfSearch) {
-    case 'concert-this':
-        bandsInTown()
+function App(command, params) {
+    
+    switch (command) {
+        case 'concert-this':
+        bandsInTown(params);
         break;
 
-    case 'spotify-this-song':
-        searchSpotify(search)
+        case 'spotify-this-song':
+        searchSpotify(params);
         break;
-
+        
     case 'movie-this':
-        //find movie
+        getMovie(params);
         break;
-
-    case 'do-what-it-says':
-        //do something
+        
+        case 'do-what-it-says':
+        DoWhatItSays();
         break;
+    }
 }
-
-var spotify = new Spotify({
-    id: "03782b49b94a4b00905d16afa43dcdb2",
-    secret: "1c8c7a263eb54911a92dbd336c657333"
-});
+    
 
 
 function searchSpotify(song) {
 
+    if (song === undefined || song === " ") {
+        song = "hello"
+    }
 
-    if (song) {
         spotify
             .search({ type: 'track', query: song })
             .then(function (data) {
-                console.log('Artist: ' + data.tracks.items[0].artists[0].name);
-                console.log('Song: ' + data.tracks.items[0].name);
-                console.log('Preview Link: ' + data.tracks.items[0].preview_url);
-                console.log('Album: ' + data.tracks.items[0].album.name);
+                // console.log(JSON.stringify(data.tracks.items, null, 2));
+                for (let i = 0; i < data.tracks.items.length; i++) {
+                    console.log('Artist: ' + data.tracks.items[i].artists[0].name);
+                    console.log('Song: ' + data.tracks.items[i].name);
+                    console.log('Preview Link: ' + data.tracks.items[i].preview_url);
+                    console.log('Album: ' + data.tracks.items[i].album.name);
+                    console.log("=========================================")
+                }
             })
             .catch(function (err) {
                 console.log(err);
             });
-    }
-    else
-        spotify
-            .search({ type: 'track', query: 'Ace The Sign' })
-            .then(function (data) {
-
-                console.log('Artist: ' + data.tracks.items[0].artists[0].name);
-                console.log('Song: ' + data.tracks.items[0].name);
-                console.log('Preview Link: ' + data.tracks.items[0].preview_url);
-                console.log('Album: ' + data.tracks.items[0].album.name);
-            })
-            .catch(function (err) {
-                console.log(err);
-            });
-
-};
+    };
