@@ -2,7 +2,7 @@
 require("dotenv").config();
 var keys = require("./keys.js");
 var Spotify = require("node-spotify-api");
-//var moment = reqiure("moment");
+var moment = require("moment");
 var axios = require("axios");
 var fs = require("fs");
 
@@ -29,11 +29,42 @@ function App(command, params) {
         break;
         
         case 'do-what-it-says':
-        DoWhatItSays();
+        doWhatItSays();
         break;
     }
 }
-    
+   
+function bandsInTown(params) {
+
+    params ? "" : params = "Backstreet Boys";
+
+    var queryURL = `https://rest.bandsintown.com/artists/${params}/events?app_id=codingbootcamp`;
+
+    axios.get(queryURL)
+    .then(function (response) {
+        var data = response.data;
+
+        console.log('-----------------------------------------------');
+        console.log(`Here are the concerts for ${params}:`)
+
+        for (let i = 0; i < data.length; i++) {
+            console.log('-----------------------------------------------');
+            console.log("Name: ",data[i].venue.name);
+            console.log("City: ",data[i].venue.city);
+            console.log("Country: ",data[i].venue.country);
+            console.log("Date: ",moment(data[i].datetime, "YYYY-MM-DD").format("DD/MM/YYYY"));
+            console.log('-----------------------------------------------');
+        }
+
+    })
+    .catch(function (error) {
+        console.log(error);
+    })
+
+
+
+}
+
 
 
 function searchSpotify(song) {
@@ -58,3 +89,44 @@ function searchSpotify(song) {
                 console.log(err);
             });
     };
+
+    function getMovie(params){
+
+        params ? "" : params = "The Matrix";
+
+        const queryURL = `http://www.omdbapi.com/?t=${params}&y=&plot=short&apikey=trilogy`;
+
+        axios.get(queryURL)
+        .then(function (response) {
+            var data = response.data;
+    
+            console.log('-----------------------------------------------');
+            console.log("Title: " + data.Title);
+			console.log("Year: " + data.Year);
+			console.log("Rated: " + data.Rated);
+			console.log("IMDB Rating: " + data.imdbRating);
+			console.log("Country: " + data.Country);
+			console.log("Language: " + data.Language);
+			console.log("Plot: " + data.Plot);
+			console.log("Actors: " + data.Actors);
+			!data.Ratings[1] ? "" : console.log("Rotten Tomatoes Rating: " + data.Ratings[1].Value);
+			console.log("------------------------------------------------------------------");
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    };
+
+    function doWhatItSays() {
+        fs.readFile("random.txt", "utf8", function (error, data) {
+            if(error) {
+                return console.log(error);
+            };
+
+            var dataArr = data.split(",");
+
+            for (let i = 0; i < dataArr.length; i++) {
+                App(dataArr[i], dataArr[i+1]);
+            }
+        })
+    }
